@@ -1,16 +1,15 @@
+var worker;
+
 $(document).ready(function () {
     var canvas = document.getElementById("playGround");
     if (!canvas.getContext) {
         return;
     }
 
-    var stoneStatuses = new Array(Otomata.numberOfCells);
     var ctx = canvas.getContext('2d');
 
     for (var i = 0; i < Otomata.numberOfCells; i++) {
-        stoneStatuses[i] = new Array(Otomata.numberOfCells);
         for (var j = 0; j < Otomata.numberOfCells; j++) {
-            stoneStatuses[i][j] = 0;
             ctx.fillRect(
                 (i * Otomata.cellSize) + 1,
                 (j * Otomata.cellSize) + 1,
@@ -46,84 +45,105 @@ $(document).ready(function () {
         if (onStone(event)) {
             var stoneX = (event.pageX - (event.pageX % Otomata.cellSize)) / Otomata.cellSize;
             var stoneY = (event.pageY - (event.pageY % Otomata.cellSize)) / Otomata.cellSize;
-            var lastStoneStatus = stoneStatuses[stoneX][stoneY];
-            var newStoneStatus = (lastStoneStatus + 1) % 5;
-
-            ctx.clearRect(
-                (stoneX * Otomata.cellSize) + 2,
-                (stoneY * Otomata.cellSize) + 2,
-                Otomata.cellSize - 4,
-                Otomata.cellSize - 4
-            );
-
-            if (newStoneStatus == 1) {
-                ctx.beginPath();
-                ctx.moveTo(
-                    (stoneX * Otomata.cellSize) + (Otomata.cellSize / 2),
-                    (stoneY * Otomata.cellSize) + (Otomata.cellSize / 4)
-                );
-                ctx.lineTo(
-                    (stoneX * Otomata.cellSize) + (3 * Otomata.cellSize / 4),
-                    (stoneY * Otomata.cellSize) + (Otomata.cellSize / 2)
-                );
-                ctx.lineTo(
-                    (stoneX * Otomata.cellSize) + (Otomata.cellSize / 4),
-                    (stoneY * Otomata.cellSize) + (Otomata.cellSize / 2)
-                );
-                ctx.closePath();
-                ctx.fill();
-            } else if (newStoneStatus == 2) {
-                ctx.beginPath();
-                ctx.moveTo(
-                    (stoneX * Otomata.cellSize) + (Otomata.cellSize / 2),
-                    (stoneY * Otomata.cellSize) + (Otomata.cellSize / 4)
-                );
-                ctx.lineTo(
-                    (stoneX * Otomata.cellSize) + (3 * Otomata.cellSize / 4),
-                    (stoneY * Otomata.cellSize) + (Otomata.cellSize / 2)
-                );
-                ctx.lineTo(
-                    (stoneX * Otomata.cellSize) + (Otomata.cellSize / 2),
-                    (stoneY * Otomata.cellSize) + (3 * Otomata.cellSize / 4)
-                );
-                ctx.closePath();
-                ctx.fill();
-            } else if (newStoneStatus == 3) {
-                ctx.beginPath();
-                ctx.moveTo(
-                    (stoneX * Otomata.cellSize) + (Otomata.cellSize / 2),
-                    (stoneY * Otomata.cellSize) + (3 * Otomata.cellSize / 4)
-                );
-                ctx.lineTo(
-                    (stoneX * Otomata.cellSize) + (3 * Otomata.cellSize / 4),
-                    (stoneY * Otomata.cellSize) + (Otomata.cellSize / 2)
-                );
-                ctx.lineTo(
-                    (stoneX * Otomata.cellSize) + (Otomata.cellSize / 4),
-                    (stoneY * Otomata.cellSize) + (Otomata.cellSize / 2)
-                );
-                ctx.closePath();
-                ctx.fill();
-            } else if (newStoneStatus == 4) {
-                ctx.beginPath();
-                ctx.moveTo(
-                    (stoneX * Otomata.cellSize) + (Otomata.cellSize / 2),
-                    (stoneY * Otomata.cellSize) + (Otomata.cellSize / 4)
-                );
-                ctx.lineTo(
-                    (stoneX * Otomata.cellSize) + (Otomata.cellSize / 4),
-                    (stoneY * Otomata.cellSize) + (Otomata.cellSize / 2)
-                );
-                ctx.lineTo(
-                    (stoneX * Otomata.cellSize) + (Otomata.cellSize / 2),
-                    (stoneY * Otomata.cellSize) + (3 * Otomata.cellSize / 4)
-                );
-                ctx.closePath();
-                ctx.fill();
-            }
-
-            stoneStatuses[stoneX][stoneY] = newStoneStatus;
+            worker.postMessage(['click', [stoneX, stoneY]]);
         }
     });
+
+    /**
+     * Paint the stone
+     * @param x the stone column index
+     * @param y the stone row index.
+     * @param status 1 up, 2 right, 3 down, 4 left, 0 nada
+     */
+    function paintStone(x, y, status) {
+        ctx.clearRect(
+            (x * Otomata.cellSize) + 2,
+            (y * Otomata.cellSize) + 2,
+            Otomata.cellSize - 4,
+            Otomata.cellSize - 4
+        );
+
+        if (status == 1) {
+            ctx.beginPath();
+            ctx.moveTo(
+                (x * Otomata.cellSize) + (Otomata.cellSize / 2),
+                (y * Otomata.cellSize) + (Otomata.cellSize / 4)
+            );
+            ctx.lineTo(
+                (x * Otomata.cellSize) + (3 * Otomata.cellSize / 4),
+                (y * Otomata.cellSize) + (Otomata.cellSize / 2)
+            );
+            ctx.lineTo(
+                (x * Otomata.cellSize) + (Otomata.cellSize / 4),
+                (y * Otomata.cellSize) + (Otomata.cellSize / 2)
+            );
+            ctx.closePath();
+            ctx.fill();
+        } else if (status == 2) {
+            ctx.beginPath();
+            ctx.moveTo(
+                (x * Otomata.cellSize) + (Otomata.cellSize / 2),
+                (y * Otomata.cellSize) + (Otomata.cellSize / 4)
+            );
+            ctx.lineTo(
+                (x * Otomata.cellSize) + (3 * Otomata.cellSize / 4),
+                (y * Otomata.cellSize) + (Otomata.cellSize / 2)
+            );
+            ctx.lineTo(
+                (x * Otomata.cellSize) + (Otomata.cellSize / 2),
+                (y * Otomata.cellSize) + (3 * Otomata.cellSize / 4)
+            );
+            ctx.closePath();
+            ctx.fill();
+        } else if (status == 3) {
+            ctx.beginPath();
+            ctx.moveTo(
+                (x * Otomata.cellSize) + (Otomata.cellSize / 2),
+                (y * Otomata.cellSize) + (3 * Otomata.cellSize / 4)
+            );
+            ctx.lineTo(
+                (x * Otomata.cellSize) + (3 * Otomata.cellSize / 4),
+                (y * Otomata.cellSize) + (Otomata.cellSize / 2)
+            );
+            ctx.lineTo(
+                (x * Otomata.cellSize) + (Otomata.cellSize / 4),
+                (y * Otomata.cellSize) + (Otomata.cellSize / 2)
+            );
+            ctx.closePath();
+            ctx.fill();
+        } else if (status == 4) {
+            ctx.beginPath();
+            ctx.moveTo(
+                (x * Otomata.cellSize) + (Otomata.cellSize / 2),
+                (y * Otomata.cellSize) + (Otomata.cellSize / 4)
+            );
+            ctx.lineTo(
+                (x * Otomata.cellSize) + (Otomata.cellSize / 4),
+                (y * Otomata.cellSize) + (Otomata.cellSize / 2)
+            );
+            ctx.lineTo(
+                (x * Otomata.cellSize) + (Otomata.cellSize / 2),
+                (y * Otomata.cellSize) + (3 * Otomata.cellSize / 4)
+            );
+            ctx.closePath();
+            ctx.fill();
+        }
+    }
+
+    worker = new Worker("js/otomata.worker.js");
+    worker.onmessage = function (event) {
+        var action = event.data[0];
+        if (action == 'log') {
+            console.log(event.data[1]);
+        } else if (action == 'paint') {
+            paintStone(event.data[1][0], event.data[1][1], event.data[1][2]);
+        }
+    };
+    worker.postMessage(['init']);
+
+    $("#start").click(function () {
+        worker.postMessage(['start']);
+    });
+
 
 });
