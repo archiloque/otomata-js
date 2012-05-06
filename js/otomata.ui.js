@@ -53,9 +53,10 @@ $(document).ready(function () {
      * Paint the stone
      * @param x the stone column index
      * @param y the stone row index.
-     * @param status 1 up, 2 right, 3 down, 4 left, 0 nada
+     * @param status 0 up, 1 right, 2 down, 3 left, 4 circle, -1 nada
      */
     function paintStone(x, y, status) {
+
         ctx.clearRect(
             (x * Otomata.cellSize) + 2,
             (y * Otomata.cellSize) + 2,
@@ -63,7 +64,7 @@ $(document).ready(function () {
             Otomata.cellSize - 4
         );
 
-        if (status == 1) {
+        if (status == 0) {
             ctx.beginPath();
             ctx.moveTo(
                 (x * Otomata.cellSize) + (Otomata.cellSize / 2),
@@ -76,6 +77,22 @@ $(document).ready(function () {
             ctx.lineTo(
                 (x * Otomata.cellSize) + (Otomata.cellSize / 4),
                 (y * Otomata.cellSize) + (Otomata.cellSize / 2)
+            );
+            ctx.closePath();
+            ctx.fill();
+        } else if (status == 1) {
+            ctx.beginPath();
+            ctx.moveTo(
+                (x * Otomata.cellSize) + (Otomata.cellSize / 2),
+                (y * Otomata.cellSize) + (Otomata.cellSize / 4)
+            );
+            ctx.lineTo(
+                (x * Otomata.cellSize) + (3 * Otomata.cellSize / 4),
+                (y * Otomata.cellSize) + (Otomata.cellSize / 2)
+            );
+            ctx.lineTo(
+                (x * Otomata.cellSize) + (Otomata.cellSize / 2),
+                (y * Otomata.cellSize) + (3 * Otomata.cellSize / 4)
             );
             ctx.closePath();
             ctx.fill();
@@ -83,15 +100,15 @@ $(document).ready(function () {
             ctx.beginPath();
             ctx.moveTo(
                 (x * Otomata.cellSize) + (Otomata.cellSize / 2),
-                (y * Otomata.cellSize) + (Otomata.cellSize / 4)
+                (y * Otomata.cellSize) + (3 * Otomata.cellSize / 4)
             );
             ctx.lineTo(
                 (x * Otomata.cellSize) + (3 * Otomata.cellSize / 4),
                 (y * Otomata.cellSize) + (Otomata.cellSize / 2)
             );
             ctx.lineTo(
-                (x * Otomata.cellSize) + (Otomata.cellSize / 2),
-                (y * Otomata.cellSize) + (3 * Otomata.cellSize / 4)
+                (x * Otomata.cellSize) + (Otomata.cellSize / 4),
+                (y * Otomata.cellSize) + (Otomata.cellSize / 2)
             );
             ctx.closePath();
             ctx.fill();
@@ -99,22 +116,6 @@ $(document).ready(function () {
             ctx.beginPath();
             ctx.moveTo(
                 (x * Otomata.cellSize) + (Otomata.cellSize / 2),
-                (y * Otomata.cellSize) + (3 * Otomata.cellSize / 4)
-            );
-            ctx.lineTo(
-                (x * Otomata.cellSize) + (3 * Otomata.cellSize / 4),
-                (y * Otomata.cellSize) + (Otomata.cellSize / 2)
-            );
-            ctx.lineTo(
-                (x * Otomata.cellSize) + (Otomata.cellSize / 4),
-                (y * Otomata.cellSize) + (Otomata.cellSize / 2)
-            );
-            ctx.closePath();
-            ctx.fill();
-        } else if (status == 4) {
-            ctx.beginPath();
-            ctx.moveTo(
-                (x * Otomata.cellSize) + (Otomata.cellSize / 2),
                 (y * Otomata.cellSize) + (Otomata.cellSize / 4)
             );
             ctx.lineTo(
@@ -125,6 +126,16 @@ $(document).ready(function () {
                 (x * Otomata.cellSize) + (Otomata.cellSize / 2),
                 (y * Otomata.cellSize) + (3 * Otomata.cellSize / 4)
             );
+            ctx.closePath();
+            ctx.fill();
+        } else if (status == 4) {
+            ctx.beginPath();
+            ctx.arc(
+                (x * Otomata.cellSize) + (Otomata.cellSize / 2),
+                (y * Otomata.cellSize) + (Otomata.cellSize / 2),
+                Otomata.cellSize / 3,
+                0,
+                Math.PI * 2);
             ctx.closePath();
             ctx.fill();
         }
@@ -141,8 +152,22 @@ $(document).ready(function () {
     };
     worker.postMessage(['init']);
 
+    var running = false;
+
     $("#start").click(function () {
-        worker.postMessage(['start']);
+        if (running) {
+            worker.postMessage(['stop']);
+            $("#start").text('Start')
+        } else {
+            worker.postMessage(['start']);
+            $("#start").text('Stop')
+        }
+        running = !running;
+        return false;
+    });
+    $("#clear").click(function () {
+        worker.postMessage(['clear']);
+        return false;
     });
 
 
