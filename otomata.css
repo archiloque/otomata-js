@@ -1,0 +1,11 @@
+#playGround {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+#controls {
+    position: absolute;
+    top: 0;
+    left: 510px;
+    background-color: #808080;
+}
