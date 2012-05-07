@@ -172,5 +172,19 @@ $(document).ready(function () {
         return false;
     });
 
+    var scalesNames = [];
+    $.each(Otomata.scales, function(name, values){
+       scalesNames.push(name);
+    });
+    scalesNames.sort();
+    var scalesSelect = "";
+    for(i = 0; i < scalesNames.length; i++) {
+        scalesSelect += "<option>" + scalesNames[i] + "</option>";
+    }
+    setScale(scalesNames[0]);
+    $("#scales").html(scalesSelect).change(function(){
+        setScale($("#scales").val());
+    });
+
 
 });

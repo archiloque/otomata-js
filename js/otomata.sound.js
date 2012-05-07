@@ -4,9 +4,10 @@ function generateAudio(freq) {
     for (var i = 0; i < samplesLength; i++) {
         var t = i / samplesLength;
         var w = 2 * Math.PI * freq * t;
-        samples[i] = Math.cos(w + 8 * Math.sin(w * 7 / 8) * Math.exp(-t * 4));
-        samples[i] *= Math.exp(-t * 3);
-        samples[i] = 128 + Math.round(127 * samples[i]);
+        var v = Math.cos(w + 8 * Math.sin(w * 1 / 3) * Math.exp(-t * 8));
+        v *= Math.exp(-t * 3);
+        v = 128 + Math.round(127 * v);
+        samples[i] = v;
     }
 
     var wave = new RIFFWAVE();
@@ -18,21 +19,28 @@ function generateAudio(freq) {
     return audio;
 }
 
-var audios = {};
+var audios = new Array(Otomata.frequencies.length);
+var scales = {};
+var currentScale = null;
 
-function playTone(freq) {
-    var audio = audios[freq];
-    if (!audio) {
-        audio = generateAudio(freq);
-        audios[freq] = audio;
-    }
-    audio.play();
-}
+$(document).ready(function () {
+    $.each(Otomata.frequencies, function(index, frequency){
+       audios[index] = generateAudio(frequency);
+    });
 
-for (i = 0; i < 9; i++) {
-    audios[220 * i] = generateAudio(250 * i);
+    $.each(Otomata.scales, function(name, values){
+        v = new Array(Otomata.numberOfCells);
+        for(var i = 0; i < Otomata.numberOfCells;i++) {
+            v[i] = audios[values[i]];
+        }
+        scales[name] = v;
+    });
+});
+
+function setScale(scaleName) {
+    currentScale = scales[scaleName];
 }
 
 function playSound(index) {
-    playTone(250 * index);
+    currentScale[index].play();
 }
