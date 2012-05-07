@@ -32,13 +32,13 @@ $(document).ready(function () {
     }
 
     $("#playGround").mouseleave(function () {
-        $("#playGround").css({cursor: "default"});
+        $("#playGround").css({cursor:"default"});
     });
     $("#playGround").mousemove(function (event) {
         if (onStone(event)) {
-            $("#playGround").css({cursor: "pointer"});
+            $("#playGround").css({cursor:"pointer"});
         } else {
-            $("#playGround").css({cursor: "default"});
+            $("#playGround").css({cursor:"default"});
         }
     });
     $("#playGround").click(function (event) {
@@ -144,10 +144,12 @@ $(document).ready(function () {
     worker = new Worker("js/otomata.worker.js");
     worker.onmessage = function (event) {
         var action = event.data[0];
-        if (action == 'log') {
-            console.log(event.data[1]);
-        } else if (action == 'paint') {
+        if (action == 'paint') {
             paintStone(event.data[1][0], event.data[1][1], event.data[1][2]);
+        } else if (action == 'sound') {
+            playSound(event.data[1]);
+        } else if (action == 'log') {
+            console.log(event.data[1]);
         }
     };
     worker.postMessage(['init']);

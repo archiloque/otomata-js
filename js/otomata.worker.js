@@ -39,6 +39,10 @@ function repaint(stone) {
     self.postMessage(['paint', stone]);
 }
 
+function playSound(index, position) {
+    self.postMessage(['sound', index, position]);
+}
+
 function addItemToGrid(grid, stone) {
     var items = grid[stone[0]][stone[1]];
     if (items) {
@@ -63,6 +67,7 @@ function tick() {
             // go up
             if (stone[1] == 0) {
                 // hit the ceiling
+                playSound(stone[0], 0);
                 stone[2] = 2;
                 stone[1] = 1;
             } else {
@@ -72,6 +77,7 @@ function tick() {
             // go right
             if (stone[0] == (Otomata.numberOfCells - 1)) {
                 // hit the right wall
+                playSound(stone[1], 1);
                 stone[2] = 3;
                 stone[0] = (Otomata.numberOfCells - 2);
             } else {
@@ -81,6 +87,7 @@ function tick() {
             // go down
             if (stone[1] == (Otomata.numberOfCells - 1)) {
                 // hit the floor
+                playSound(stone[0], 2);
                 stone[2] = 0;
                 stone[1] = (Otomata.numberOfCells - 2);
             } else {
@@ -90,6 +97,7 @@ function tick() {
             // go left
             if (stone[0] == 0) {
                 // hit the left wall
+                playSound(stone[1], 3);
                 stone[2] = 1;
                 stone[0] = 1;
             } else {
