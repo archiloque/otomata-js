@@ -4,7 +4,7 @@ function generateAudio(freq) {
     for (var i = 0; i < samplesLength; i++) {
         var t = i / samplesLength;
         var w = 2 * Math.PI * freq * t;
-        var v = Math.cos(w + 8 * Math.sin(w * 1 / 3) * Math.exp(-t * 8));
+        var v = Math.cos(w + 8 * Math.sin(w * 2 / 5) * Math.exp(-t * 15));
         v *= Math.exp(-t * 3);
         v = 128 + Math.round(127 * v);
         samples[i] = v;

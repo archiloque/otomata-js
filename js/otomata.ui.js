@@ -172,6 +172,14 @@ $(document).ready(function () {
         return false;
     });
 
+    $("#scale").click(function () {
+        worker.postMessage(['clear']);
+        for (var i = 0; i < Otomata.numberOfCells; i++) {
+            worker.postMessage(['click', [i, i]]);
+        }
+        return false;
+    });
+
     var scalesNames = [];
     $.each(Otomata.scales, function (name, values) {
         scalesNames.push(name);
