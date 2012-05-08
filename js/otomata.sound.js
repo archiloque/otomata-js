@@ -16,31 +16,40 @@ function generateAudio(freq) {
     wave.Make(samples);
     var audio = new Audio();
     audio.src = wave.dataURI;
+    audio.load();
     return audio;
 }
 
-var audios = new Array(Otomata.frequencies.length);
-var scales = {};
-var currentScale = null;
+var allSounds = {};
+var currentScaleName = null;
+var currentOctave = 0;
+var currentSounds = null;
 
-$(document).ready(function () {
-    $.each(Otomata.frequencies, function(index, frequency){
-       audios[index] = generateAudio(frequency);
-    });
 
-    $.each(Otomata.scales, function(name, values){
-        v = new Array(Otomata.numberOfCells);
-        for(var i = 0; i < Otomata.numberOfCells;i++) {
-            v[i] = audios[values[i]];
+function updateSounds() {
+    currentSounds = new Array(Otomata.numberOfCells);
+    var scale = Otomata.scales[currentScaleName];
+    for(var i = 0; i < Otomata.numberOfCells; i++) {
+        var frequency = Otomata.frequencies[scale[i] + (12 * currentOctave)];
+        var sound = allSounds[frequency];
+        if(!sound) {
+            sound = allSounds[frequency] = generateAudio(frequency);
         }
-        scales[name] = v;
-    });
-});
+        currentSounds[i] = sound;
+    }
+}
 
-function setScale(scaleName) {
-    currentScale = scales[scaleName];
+
+function setScaleName(scaleName) {
+    currentScaleName = scaleName;
+    updateSounds();
+}
+
+function setOctave(octaveValue) {
+    currentOctave = octaveValue;
+    updateSounds();
 }
 
 function playSound(index) {
-    currentScale[index].play();
+    currentSounds[index].play();
 }

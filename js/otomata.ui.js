@@ -173,17 +173,25 @@ $(document).ready(function () {
     });
 
     var scalesNames = [];
-    $.each(Otomata.scales, function(name, values){
-       scalesNames.push(name);
+    $.each(Otomata.scales, function (name, values) {
+        scalesNames.push(name);
     });
     scalesNames.sort();
     var scalesSelect = "";
-    for(i = 0; i < scalesNames.length; i++) {
+    for (i = 0; i < scalesNames.length; i++) {
         scalesSelect += "<option>" + scalesNames[i] + "</option>";
     }
-    setScale(scalesNames[0]);
-    $("#scales").html(scalesSelect).change(function(){
-        setScale($("#scales").val());
+    setScaleName(scalesNames[0]);
+    $("#scales").html(scalesSelect).change(function () {
+        setScaleName($("#scales").val());
+    });
+
+    var octavesSelect = "";
+    for (i = 0; i < Otomata.availableOctaves; i++) {
+        octavesSelect += "<option>" + (i + 1) + "</option>";
+    }
+    $("#octaves").html(octavesSelect).change(function () {
+        setOctave(parseInt($("#octaves").val()) - 1);
     });
 
 
