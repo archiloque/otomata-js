@@ -189,7 +189,6 @@ $(document).ready(function () {
     for (i = 0; i < scalesNames.length; i++) {
         scalesSelect += "<option>" + scalesNames[i] + "</option>";
     }
-    setScaleName(scalesNames[0]);
     $("#scales").html(scalesSelect).change(function () {
         setScaleName($("#scales").val());
     });
@@ -202,5 +201,16 @@ $(document).ready(function () {
         setOctave(parseInt($("#octaves").val()) - 1);
     });
 
+    $("#updateFormula").click(function(){
+        setFormula($("#formula").val());
+    });
+
+    $("#resetFormula").click(function(){
+        setFormula($("#formula").val(getDefaultFormula()));
+        setFormula(getDefaultFormula());
+    });
+
+    setDefaultFormula($("#formula").val());
+    setScaleName(scalesNames[0]);
 
 });

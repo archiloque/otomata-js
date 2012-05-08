@@ -2,6 +2,7 @@ var Otomata = {
     numberOfCells:9,
     cellSize:45,
     availableOctaves: 7,
+    sampleRate: 22050,
     frequencies:[
         130.813,
         138.591,

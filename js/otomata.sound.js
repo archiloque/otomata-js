@@ -13,19 +13,13 @@ function exp(x) {
 var PI = Math.PI;
 
 function generateAudio(freq) {
-    var samplesLength = 22050;
-    var samples = new Array(samplesLength);
-    for (var i = 0; i < samplesLength; i++) {
-        var t = i / samplesLength;  // time from 0 to 1
-        var w = 2 * Math.PI * freq * t;
-        var v = cos(w + 3 * sin(w / 3) * exp(-t));
-        v *= Math.exp(-t * 3);
-        v = 128 + Math.round(127 * v);
-        samples[i] = v;
+    var samples = [];
+    try {
+        eval(currentFormula);
+    } catch (e) {
     }
-
     var wave = new RIFFWAVE();
-    wave.header.sampleRate = 22050;
+    wave.header.sampleRate = Otomata.sampleRate;
     wave.header.numChannels = 1;
     wave.Make(samples);
     var audio = new Audio();
@@ -38,7 +32,8 @@ var allSounds = {};
 var currentScaleName = null;
 var currentOctave = 0;
 var currentSounds = null;
-
+var currentFormula = null;
+var defaultFormula = null;
 
 function updateSounds() {
     currentSounds = new Array(Otomata.numberOfCells);
@@ -56,6 +51,21 @@ function updateSounds() {
 
 function setScaleName(scaleName) {
     currentScaleName = scaleName;
+    updateSounds();
+}
+
+function setDefaultFormula(formula) {
+    defaultFormula = formula;
+    currentFormula = formula;
+}
+
+function getDefaultFormula() {
+    return defaultFormula;
+}
+
+function setFormula(formula) {
+    allSounds = {};
+    currentFormula = formula;
     updateSounds();
 }
 
