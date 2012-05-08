@@ -203,11 +203,13 @@ $(document).ready(function () {
 
     $("#updateFormula").click(function(){
         setFormula($("#formula").val());
+        return false;
     });
 
     $("#resetFormula").click(function(){
         setFormula($("#formula").val(getDefaultFormula()));
         setFormula(getDefaultFormula());
+        return false;
     });
 
     setDefaultFormula($("#formula").val());
