@@ -1,10 +1,24 @@
+function sin(x) {
+    return Math.sin(x);
+}
+
+function cos(x) {
+    return Math.cos(x);
+}
+
+function exp(x) {
+    return Math.exp(x);
+}
+
+var PI = Math.PI;
+
 function generateAudio(freq) {
     var samplesLength = 22050;
     var samples = new Array(samplesLength);
     for (var i = 0; i < samplesLength; i++) {
-        var t = i / samplesLength;
+        var t = i / samplesLength;  // time from 0 to 1
         var w = 2 * Math.PI * freq * t;
-        var v = Math.cos(w + 8 * Math.sin(w * 2 / 5) * Math.exp(-t * 15));
+        var v = cos(w + 3 * sin(w / 3) * exp(-t));
         v *= Math.exp(-t * 3);
         v = 128 + Math.round(127 * v);
         samples[i] = v;
@@ -29,10 +43,10 @@ var currentSounds = null;
 function updateSounds() {
     currentSounds = new Array(Otomata.numberOfCells);
     var scale = Otomata.scales[currentScaleName];
-    for(var i = 0; i < Otomata.numberOfCells; i++) {
+    for (var i = 0; i < Otomata.numberOfCells; i++) {
         var frequency = Otomata.frequencies[scale[i] + (12 * currentOctave)];
         var sound = allSounds[frequency];
-        if(!sound) {
+        if (!sound) {
             sound = allSounds[frequency] = generateAudio(frequency);
         }
         currentSounds[i] = sound;
