@@ -4,6 +4,10 @@ var stones = [];
 var lastGrid = null;
 var timer = null;
 
+// if the tick is running
+var ticking = false;
+var waitingClicks = null;
+
 self.addEventListener('message', function (e) {
     var messageType = e.data[0];
     if (messageType == 'click') {
@@ -56,6 +60,7 @@ function addItemToGrid(grid, stone) {
  * Called at each tick.
  */
 function tick() {
+    ticking = true;
     // calculate the new grid
     var newGrid = new Array(Otomata.numberOfCells);
     for (var i = 0; i < Otomata.numberOfCells; i++) {
@@ -143,6 +148,16 @@ function tick() {
     }
 
     lastGrid = newGrid;
+    ticking = false;
+
+    // if there is waiting actions, play them now
+    if (waitingClicks) {
+        for (i = 0; i < waitingClicks.length; i++) {
+            clickStone(waitingClicks[i][0], waitingClicks[i][1]);
+        }
+        self.postMessage(['log', waitingClicks.length]);
+        waitingClicks = null;
+    }
 }
 
 /**
@@ -151,6 +166,19 @@ function tick() {
  * @param y the stone row index.
  */
 function clickStone(x, y) {
+
+    // if the tick is running, store the action to play it later
+    if (ticking) {
+        if (waitingClicks) {
+            waitingClicks.push([x, y]);
+        } else {
+            waitingClicks = [
+                [x, y]
+            ];
+        }
+        return;
+    }
+
     var stonesOnPosition = lastGrid[x][y];
     if ((!stonesOnPosition) || (stonesOnPosition.length == 0)) {
         var newStone = [x, y, 0];
@@ -172,7 +200,7 @@ function clickStone(x, y) {
                     newStones.push(stone);
                 }
             }
-            stones = stone;
+            stones = newStones;
             repaint(stone);
         } else {
             repaint(stone);
