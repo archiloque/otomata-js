@@ -14,6 +14,10 @@ self.addEventListener('message', function (e) {
 });
 
 
+function round(x) {
+    return Math.round(x);
+}
+
 function sin(x) {
     return Math.sin(x);
 }
@@ -33,6 +37,8 @@ function generateSound(frequency, soundIndex) {
     try {
         eval(formula);
     } catch (e) {
+        self.postMessage(['error', [e.message]]);
+        return;
     }
     var wave = new RIFFWAVE();
     wave.header.sampleRate = Otomata.sampleRate;

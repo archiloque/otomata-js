@@ -29,15 +29,17 @@ var samplesLength = Otomata.sampleRate; // one second
 var samples = new Array(samplesLength);
 for (var i = 0; i < samplesLength; i++) {
     var t = i / samplesLength; // time from 0 to 1
-    var w = 2 * Math.PI * frequency * t;
+    var w = 2 * PI * frequency * t;
     var v = cos(w + 3 * sin(w / 3) * exp(-t));
-    v *= Math.exp(-t * 3);
-    v = 128 + Math.round(127 * v); // normalize values
+    v *= exp(-t * 3);
+    v = 128 + round(127 * v); // normalize values
     samples[i] = v;
 }
     </textarea>
     <a id="updateFormula" href="#">Update</a> /
     <a id="resetFormula" href="#">Reset</a>
+    <textarea id="errorMessage" rows="5" cols="50" readonly>
+    </textarea>
 </div>
 </div>
 </body>

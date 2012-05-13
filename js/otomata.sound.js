@@ -19,6 +19,8 @@ $(document).ready(function () {
         var action = event.data[0];
         if (action == 'setSound') {
             setSound(event.data[1][0], event.data[1][1]);
+        } else if (action == 'error') {
+            $("#errorMessage").text(event.data[1][0]);
         }
     };
 
@@ -36,7 +38,7 @@ function updateSounds() {
     for (var i = 0; i < Otomata.numberOfCells; i++) {
         var frequency = Otomata.frequencies[scale[i] + (12 * currentOctave)];
         var sound = cachedSoundsForFormula[frequency];
-        if(sound) {
+        if (sound) {
             currentSounds[i] = sound;
         } else {
             soundWorker.postMessage(['generateSound', [frequency, i]]);
@@ -61,6 +63,7 @@ function getDefaultFormula() {
 
 function setFormula(formula) {
     // evict the cache
+    $("#errorMessage").text("");
     cachedSoundsForFormula = {};
     soundWorker.postMessage(['setFormula', [formula]]);
     updateSounds();
@@ -72,7 +75,7 @@ function setOctave(octave) {
 }
 
 function playSound(index) {
-    if(currentSounds[index]) {
+    if (currentSounds[index]) {
         currentSounds[index].play();
     }
 }
