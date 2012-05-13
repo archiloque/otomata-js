@@ -1,50 +1,46 @@
-function sin(x) {
-    return Math.sin(x);
-}
+// cached sounds for a formula, indexed by their frequency
+var cachedSoundsForFormula = {};
 
-function cos(x) {
-    return Math.cos(x);
-}
-
-function exp(x) {
-    return Math.exp(x);
-}
-
-var PI = Math.PI;
-
-function generateAudio(freq) {
-    var samples = [];
-    try {
-        eval(currentFormula);
-    } catch (e) {
-    }
-    var wave = new RIFFWAVE();
-    wave.header.sampleRate = Otomata.sampleRate;
-    wave.header.numChannels = 1;
-    wave.Make(samples);
-    var audio = new Audio();
-    audio.src = wave.dataURI;
-    audio.load();
-    return audio;
-}
-
-var allSounds = {};
 var currentScaleName = null;
 var currentOctave = 0;
-var currentSounds = null;
-var currentFormula = null;
+
+// the worker
+var soundWorker;
+
+// the current sounds, array with cell index
+var currentSounds = new Array(Otomata.numberOfCells);
+
+// default formula
 var defaultFormula = null;
 
+$(document).ready(function () {
+    soundWorker = new Worker("js/otomata.sound.worker.js");
+    soundWorker.onmessage = function (event) {
+        var action = event.data[0];
+        if (action == 'setSound') {
+            setSound(event.data[1][0], event.data[1][1]);
+        }
+    };
+
+});
+
+function setSound(soundIndex, soundUri) {
+    var audio = new Audio();
+    audio.src = soundUri;
+    audio.load();
+    currentSounds[soundIndex] = audio;
+}
+
 function updateSounds() {
-    currentSounds = new Array(Otomata.numberOfCells);
     var scale = Otomata.scales[currentScaleName];
     for (var i = 0; i < Otomata.numberOfCells; i++) {
         var frequency = Otomata.frequencies[scale[i] + (12 * currentOctave)];
-        var sound = allSounds[frequency];
-        if (!sound) {
-            sound = allSounds[frequency] = generateAudio(frequency);
+        var sound = cachedSoundsForFormula[frequency];
+        if(sound) {
+            currentSounds[i] = sound;
+        } else {
+            soundWorker.postMessage(['generateSound', [frequency, i]]);
         }
-        currentSounds[i] = sound;
     }
 }
 
@@ -56,7 +52,7 @@ function setScaleName(scaleName) {
 
 function setDefaultFormula(formula) {
     defaultFormula = formula;
-    currentFormula = formula;
+    soundWorker.postMessage(['setFormula', [formula]]);
 }
 
 function getDefaultFormula() {
@@ -64,16 +60,19 @@ function getDefaultFormula() {
 }
 
 function setFormula(formula) {
-    allSounds = {};
-    currentFormula = formula;
+    // evict the cache
+    cachedSoundsForFormula = {};
+    soundWorker.postMessage(['setFormula', [formula]]);
     updateSounds();
 }
 
-function setOctave(octaveValue) {
-    currentOctave = octaveValue;
+function setOctave(octave) {
+    currentOctave = octave;
     updateSounds();
 }
 
 function playSound(index) {
-    currentSounds[index].play();
+    if(currentSounds[index]) {
+        currentSounds[index].play();
+    }
 }
