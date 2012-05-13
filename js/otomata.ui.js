@@ -195,24 +195,28 @@ $(document).ready(function () {
 
     var octavesSelect = "";
     for (i = 0; i < Otomata.availableOctaves; i++) {
-        octavesSelect += "<option>" + (i + 1) + "</option>";
+        if (i == 1) {
+            octavesSelect += "<option selected>" + (i + 1) + "</option>";
+        } else {
+            octavesSelect += "<option>" + (i + 1) + "</option>";
+        }
     }
     $("#octaves").html(octavesSelect).change(function () {
         setOctave(parseInt($("#octaves").val()) - 1);
     });
 
-    $("#updateFormula").click(function(){
+    $("#updateFormula").click(function () {
         setFormula($("#formula").val());
         return false;
     });
 
-    $("#resetFormula").click(function(){
+    $("#resetFormula").click(function () {
         setFormula($("#formula").val(getDefaultFormula()));
         setFormula(getDefaultFormula());
         return false;
     });
 
     setDefaultFormula($("#formula").val());
-    setScaleName(scalesNames[0]);
-
+    $("#scales").val("Melodic Minor");
+    $("#scales").change();
 });
