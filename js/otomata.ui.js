@@ -54,8 +54,14 @@ $(document).ready(function () {
      * @param x the stone column index
      * @param y the stone row index.
      * @param status 0 up, 1 right, 2 down, 3 left, 4 circle, -1 nada
+     * @param hit true if hit the wall
      */
-    function paintStone(x, y, status) {
+    function paintStone(x, y, status, hit) {
+        if(hit) {
+            ctx.strokeStyle = ctx.fillStyle = 'red';
+        } else {
+            ctx.strokeStyle = ctx.fillStyle = 'black';
+        }
 
         ctx.clearRect(
             (x * Otomata.cellSize) + 2,
@@ -145,7 +151,7 @@ $(document).ready(function () {
     worker.onmessage = function (event) {
         var action = event.data[0];
         if (action == 'paint') {
-            paintStone(event.data[1][0], event.data[1][1], event.data[1][2]);
+            paintStone(event.data[1][0], event.data[1][1], event.data[1][2], event.data[1][3]);
         } else if (action == 'sound') {
             playSound(event.data[1]);
         } else if (action == 'log') {

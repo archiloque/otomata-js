@@ -74,9 +74,10 @@ function tick() {
                 // hit the ceiling
                 playSound(stone[0], 0);
                 stone[2] = 2;
-                stone[1] = 1;
+                stone[3] = true;
             } else {
                 stone[1]--;
+                stone[3] = false;
             }
         } else if (stone[2] == 1) {
             // go right
@@ -84,9 +85,10 @@ function tick() {
                 // hit the right wall
                 playSound(stone[1], 1);
                 stone[2] = 3;
-                stone[0] = (Otomata.numberOfCells - 2);
+                stone[3] = true;
             } else {
                 stone[0]++;
+                stone[3] = false;
             }
         } else if (stone[2] == 2) {
             // go down
@@ -94,9 +96,10 @@ function tick() {
                 // hit the floor
                 playSound(stone[0], 2);
                 stone[2] = 0;
-                stone[1] = (Otomata.numberOfCells - 2);
+                stone[3] = true;
             } else {
                 stone[1]++;
+                stone[3] = false;
             }
         } else {
             // go left
@@ -104,9 +107,10 @@ function tick() {
                 // hit the left wall
                 playSound(stone[1], 3);
                 stone[2] = 1;
-                stone[0] = 1;
+                stone[3] = true;
             } else {
                 stone[0]--;
+                stone[3] = false;
             }
         }
         addItemToGrid(newGrid, stone);
@@ -122,7 +126,7 @@ function tick() {
                 // no element
                 if (onLastGrid && (onLastGrid.length != 0)) {
                     // was not empty
-                    repaint([i, j, -1]);
+                    repaint([i, j, -1, false]);
                 }
             } else if (onNewGrid.length == 1) {
                 // 1 element
@@ -135,14 +139,15 @@ function tick() {
                 }
             } else {
                 // more than 1 element
+
+                // update their direction
+                var hit = false;
                 for (var k = 0; k < onNewGrid.length; k++) {
                     onNewGrid[k][2] = (onNewGrid[k][2] + 1) % 4;
+                    hit = hit || onNewGrid[k][3];
                 }
 
-                if ((!onLastGrid) || (onLastGrid.length < 2)) {
-                    // before less than 2
-                    repaint([i, j, 4]);
-                }
+                repaint([i, j, 4, hit]);
             }
         }
     }
@@ -181,7 +186,7 @@ function clickStone(x, y) {
 
     var stonesOnPosition = lastGrid[x][y];
     if ((!stonesOnPosition) || (stonesOnPosition.length == 0)) {
-        var newStone = [x, y, 0];
+        var newStone = [x, y, 0, false];
         lastGrid[x][y] = [newStone];
         stones.push(newStone);
         repaint(newStone);
