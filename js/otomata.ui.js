@@ -8,7 +8,7 @@ $(document).ready(function () {
     var ctx = canvas.getContext('2d');
     var stonesRepaints = [];
 
-    ctx.strokeStyle = ctx.fillStyle = 'white';
+    ctx.strokeStyle = ctx.fillStyle = '#7E9ACF';
     for (var i = 0; i < Otomata.numberOfCells; i++) {
         for (var j = 0; j < Otomata.numberOfCells; j++) {
             ctx.fillRect(
@@ -50,9 +50,9 @@ $(document).ready(function () {
         }
     });
 
-    function setStyle(context, hit) {
+    function setBackgroundStyle(context, hit) {
         if (hit == 1) {
-            context.strokeStyle = context.fillStyle = 'red';
+            context.strokeStyle = context.fillStyle = 'white';
         } else if(hit == 2) {
             context.strokeStyle = context.fillStyle = '#7E9ACF';
         } else {
@@ -61,12 +61,23 @@ $(document).ready(function () {
 
     }
 
-    function finish(context, hit) {
-        if (hit == 2) {
-            context.stroke();
+    function setStyle(context, hit) {
+        if (hit == 1) {
+            context.strokeStyle = context.fillStyle = 'red';
+        } else if(hit == 2) {
+            context.strokeStyle = context.fillStyle = '#4575d2';
         } else {
-            context.fill();
+            context.strokeStyle = context.fillStyle = '#4575d2';
         }
+
+    }
+
+    function finish(context, hit) {
+//        if (hit == 2) {
+//            context.stroke();
+//        } else {
+            context.fill();
+//        }
 
     }
 
@@ -85,6 +96,15 @@ $(document).ready(function () {
             for (j = 0; j < 6; j++) {
                 var buffer = drawingCache[i][j] = document.createElement('canvas');
                 buffer.height = buffer.width = Otomata.cellSize - 4;
+
+                bufferContext = drawingCache[i][j].getContext('2d');
+                setBackgroundStyle(bufferContext, i);
+                bufferContext.fillRect(
+                    0,
+                    0,
+                    Otomata.cellSize - 4,
+                    Otomata.cellSize - 4
+                );
             }
 
             var bufferContext;
