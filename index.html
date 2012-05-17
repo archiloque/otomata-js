@@ -30,8 +30,8 @@ var samples = new Array(samplesLength);
 for (var i = 0; i < samplesLength; i++) {
     var t = i / samplesLength; // time from 0 to 1
     var w = 2 * PI * frequency * t;
-    var v = cos(w + 3 * sin(w / 3) * exp(-t));
-    v *= exp(-t * 3);
+    var v = 0.9 * cos(w + 0.5 * sin(w * 1));
+    v *= exp(-t * 5);
     v = 128 + round(127 * v); // normalize values
     samples[i] = v;
 }
