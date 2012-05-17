@@ -8,6 +8,7 @@ $(document).ready(function () {
 
     var ctx = canvas.getContext('2d');
 
+    ctx.strokeStyle = ctx.fillStyle = 'white';
     for (var i = 0; i < Otomata.numberOfCells; i++) {
         for (var j = 0; j < Otomata.numberOfCells; j++) {
             ctx.fillRect(
@@ -60,7 +61,7 @@ $(document).ready(function () {
         if(hit) {
             ctx.strokeStyle = ctx.fillStyle = 'red';
         } else {
-            ctx.strokeStyle = ctx.fillStyle = 'black';
+            ctx.strokeStyle = ctx.fillStyle = 'white';
         }
 
         ctx.clearRect(
