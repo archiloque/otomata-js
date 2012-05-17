@@ -26,16 +26,17 @@ self.addEventListener('message', function (e) {
             timer = null;
         }
     } else if (messageType == 'clear') {
-        stones = [];
+        stonesToRepaint = [];
         for (var i = 0; i < Otomata.numberOfCells; i++) {
             for (var j = 0; j < Otomata.numberOfCells; j++) {
                 if (lastGrid[i][j] && (lastGrid[i][j].length > 0)) {
-                    stones.push([i, j , 5, false]);
+                    stonesToRepaint.push([i, j , 5, false]);
                     lastGrid[i][j] = null;
                 }
             }
         }
-        repaint(stones)
+        repaint(stonesToRepaint);
+        stones = [];
     }
 
 }, false);
