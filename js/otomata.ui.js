@@ -53,8 +53,19 @@ $(document).ready(function () {
     function setStyle(context, hit) {
         if (hit == 1) {
             context.strokeStyle = context.fillStyle = 'red';
+        } else if(hit == 2) {
+            context.strokeStyle = context.fillStyle = '#7E9ACF';
         } else {
             context.strokeStyle = context.fillStyle = 'white';
+        }
+
+    }
+
+    function finish(context, hit) {
+        if (hit == 2) {
+            context.stroke();
+        } else {
+            context.fill();
         }
 
     }
@@ -63,12 +74,12 @@ $(document).ready(function () {
     // drawingCache is an array of array
     // first array contain the normal version
     // second array contain the version when the stone hit a will
+    // third array contain the faded versions
     // in each version the drawing are:
     // 0 up, 1 right, 2 down, 3 left, 4 circle, 5 nothing
-    var drawingCache = new Array(2);
+    var drawingCache = new Array(3);
     {
-        for (i = 0; i < 2; i++) {
-
+        for (i = 0; i < 3; i++) {
 
             drawingCache[i] = new Array(6);
             for (j = 0; j < 6; j++) {
@@ -94,7 +105,7 @@ $(document).ready(function () {
                     (Otomata.cellSize / 2) - 2
                 );
                 bufferContext.closePath();
-                bufferContext.fill();
+                finish(bufferContext, i);
             }
 
             {
@@ -114,7 +125,7 @@ $(document).ready(function () {
                     (3 * Otomata.cellSize / 4) - 2
                 );
                 bufferContext.closePath();
-                bufferContext.fill();
+                finish(bufferContext, i);
             }
 
             {
@@ -134,7 +145,7 @@ $(document).ready(function () {
                     (Otomata.cellSize / 2) - 2
                 );
                 bufferContext.closePath();
-                bufferContext.fill();
+                finish(bufferContext, i);
             }
 
             {
@@ -153,7 +164,7 @@ $(document).ready(function () {
                     (3 * Otomata.cellSize / 4) - 2
                 );
                 bufferContext.closePath();
-                bufferContext.fill();
+                finish(bufferContext, i);
             }
 
             {
@@ -167,7 +178,7 @@ $(document).ready(function () {
                     0,
                     Math.PI * 2);
                 bufferContext.closePath();
-                bufferContext.fill();
+                finish(bufferContext, i);
             }
         }
     }
@@ -175,19 +186,19 @@ $(document).ready(function () {
      * Paint the stone
      * @param x the stone column index
      * @param y the stone row index.
-     * @param status 0 up, 1 right, 2 down, 3 left, 4 circle, 5 nada
-     * @param hit true if hit the wall
+     * @param position 0 up, 1 right, 2 down, 3 left, 4 circle, 5 nada
+     * @param type 0 normal, 1 hit the wall, 2 faded
      */
-    function paintStone(x, y, status, hit) {
+    function paintStone(x, y, position, type) {
         ctx.clearRect(
             (x * Otomata.cellSize) + 2,
             (y * Otomata.cellSize) + 2,
             Otomata.cellSize - 4,
             Otomata.cellSize - 4
         );
-        if (status < 5) {
+        if (position < 5) {
             ctx.drawImage(
-                drawingCache[hit ? 1 : 0][status],
+                drawingCache[type][position],
                 (x * Otomata.cellSize) + 2,
                 (y * Otomata.cellSize) + 2
             );

@@ -26,11 +26,11 @@ self.addEventListener('message', function (e) {
             timer = null;
         }
     } else if (messageType == 'clear') {
-        stonesToRepaint = [];
+        var stonesToRepaint = [];
         for (var i = 0; i < Otomata.numberOfCells; i++) {
             for (var j = 0; j < Otomata.numberOfCells; j++) {
                 if (lastGrid[i][j] && (lastGrid[i][j].length > 0)) {
-                    stonesToRepaint.push([i, j , 5, false]);
+                    stonesToRepaint.push([i, j , 5, 0]);
                     lastGrid[i][j] = null;
                 }
             }
@@ -77,10 +77,10 @@ function tick() {
                 // hit the ceiling
                 playSound(stone[0], 0);
                 stone[2] = 2;
-                stone[3] = true;
+                stone[3] = 1;
             } else {
                 stone[1]--;
-                stone[3] = false;
+                stone[3] = 0;
             }
         } else if (stone[2] == 1) {
             // go right
@@ -88,10 +88,10 @@ function tick() {
                 // hit the right wall
                 playSound(stone[1], 1);
                 stone[2] = 3;
-                stone[3] = true;
+                stone[3] = 1;
             } else {
                 stone[0]++;
-                stone[3] = false;
+                stone[3] = 0;
             }
         } else if (stone[2] == 2) {
             // go down
@@ -99,10 +99,10 @@ function tick() {
                 // hit the floor
                 playSound(stone[0], 2);
                 stone[2] = 0;
-                stone[3] = true;
+                stone[3] = 1;
             } else {
                 stone[1]++;
-                stone[3] = false;
+                stone[3] = 0;
             }
         } else {
             // go left
@@ -110,10 +110,10 @@ function tick() {
                 // hit the left wall
                 playSound(stone[1], 3);
                 stone[2] = 1;
-                stone[3] = true;
+                stone[3] = 1;
             } else {
                 stone[0]--;
-                stone[3] = false;
+                stone[3] = 0;
             }
         }
         addItemToGrid(newGrid, stone);
@@ -131,7 +131,13 @@ function tick() {
                 // no element
                 if (onLastGrid && (onLastGrid.length != 0)) {
                     // was not empty
-                    stonesToPaint.push([i, j, 5, false]);
+                    if(onLastGrid.length == 1) {
+                        stonesToPaint.push([i, j, onLastGrid[0][2], 2]);
+                    } else {
+                        stonesToPaint.push([i, j, 4, 2]);
+                    }
+                } else {
+                    stonesToPaint.push([i, j, 5, 0]);
                 }
             } else if (onNewGrid.length == 1) {
                 // 1 element
@@ -152,7 +158,7 @@ function tick() {
                     hit = hit || onNewGrid[k][3];
                 }
 
-                stonesToPaint.push([i, j, 4, hit]);
+                stonesToPaint.push([i, j, 4, hit ? 1 : 0]);
             }
         }
     }
@@ -195,11 +201,13 @@ function clickStone(x, y) {
 
     var stonesOnPosition = lastGrid[x][y];
     if ((!stonesOnPosition) || (stonesOnPosition.length == 0)) {
-        var newStone = [x, y, 0, false];
+        /// there was no stone => create it
+        var newStone = [x, y, 0, 0];
         lastGrid[x][y] = [newStone];
         stones.push(newStone);
         stonesToPaint.push(newStone);
     } else if (stonesOnPosition.length == 1) {
+        /// there is one stone => turn it around
         var stone = stonesOnPosition[0];
         stone[2] = (stone[2] + 1) % 5;
         if (stone[2] == 4) {
