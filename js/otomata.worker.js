@@ -30,11 +30,12 @@ self.addEventListener('message', function (e) {
         for (var i = 0; i < Otomata.numberOfCells; i++) {
             for (var j = 0; j < Otomata.numberOfCells; j++) {
                 if (lastGrid[i][j] && (lastGrid[i][j].length > 0)) {
-                    repaint([i, j , 5, false]);
+                    stones.push([i, j , 5, false]);
                     lastGrid[i][j] = null;
                 }
             }
         }
+        repaint(stones)
     }
 
 }, false);
