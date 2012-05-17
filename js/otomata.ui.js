@@ -179,26 +179,19 @@ $(document).ready(function () {
      * @param hit true if hit the wall
      */
     function paintStone(x, y, status, hit) {
-        if (hit) {
-            ctx.strokeStyle = ctx.fillStyle = 'red';
-        } else {
-            ctx.strokeStyle = ctx.fillStyle = 'white';
-        }
-
-
         ctx.clearRect(
             (x * Otomata.cellSize) + 2,
             (y * Otomata.cellSize) + 2,
             Otomata.cellSize - 4,
             Otomata.cellSize - 4
         );
-
-        ctx.drawImage(
-            drawingCache[hit ? 1 : 0][status],
-            (x * Otomata.cellSize) + 2,
-            (y * Otomata.cellSize) + 2
-        );
-
+        if (status < 5) {
+            ctx.drawImage(
+                drawingCache[hit ? 1 : 0][status],
+                (x * Otomata.cellSize) + 2,
+                (y * Otomata.cellSize) + 2
+            );
+        }
     }
 
     var requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame ||
