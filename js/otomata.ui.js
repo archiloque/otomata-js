@@ -50,11 +50,132 @@ $(document).ready(function () {
         }
     });
 
+    function setStyle(context, hit) {
+        if (hit == 1) {
+            context.strokeStyle = context.fillStyle = 'red';
+        } else {
+            context.strokeStyle = context.fillStyle = 'white';
+        }
+
+    }
+
+    // prepare the drawing cache
+    // drawingCache is an array of array
+    // first array contain the normal version
+    // second array contain the version when the stone hit a will
+    // in each version the drawing are:
+    // 0 up, 1 right, 2 down, 3 left, 4 circle, 5 nothing
+    var drawingCache = new Array(2);
+    {
+        for (i = 0; i < 2; i++) {
+
+
+            drawingCache[i] = new Array(6);
+            for (j = 0; j < 6; j++) {
+                var buffer = drawingCache[i][j] = document.createElement('canvas');
+                buffer.height = buffer.width = Otomata.cellSize - 4;
+            }
+
+            var bufferContext;
+            {
+                bufferContext = drawingCache[i][0].getContext('2d');
+                setStyle(bufferContext, i);
+                bufferContext.beginPath();
+                bufferContext.moveTo(
+                    (Otomata.cellSize / 2) - 2,
+                    (Otomata.cellSize / 4) - 2
+                );
+                bufferContext.lineTo(
+                    (3 * Otomata.cellSize / 4) - 2,
+                    (Otomata.cellSize / 2) - 2
+                );
+                bufferContext.lineTo(
+                    (Otomata.cellSize / 4) - 2,
+                    (Otomata.cellSize / 2) - 2
+                );
+                bufferContext.closePath();
+                bufferContext.fill();
+            }
+
+            {
+                bufferContext = drawingCache[i][1].getContext('2d');
+                setStyle(bufferContext, i);
+                bufferContext.beginPath();
+                bufferContext.moveTo(
+                    (Otomata.cellSize / 2) - 2,
+                    (Otomata.cellSize / 4) - 2
+                );
+                bufferContext.lineTo(
+                    (3 * Otomata.cellSize / 4) - 2,
+                    (Otomata.cellSize / 2) - 2
+                );
+                bufferContext.lineTo(
+                    (Otomata.cellSize / 2) - 2,
+                    (3 * Otomata.cellSize / 4) - 2
+                );
+                bufferContext.closePath();
+                bufferContext.fill();
+            }
+
+            {
+                bufferContext = drawingCache[i][2].getContext('2d');
+                setStyle(bufferContext, i);
+                bufferContext.beginPath();
+                bufferContext.moveTo(
+                    (Otomata.cellSize / 2) - 2,
+                    (3 * Otomata.cellSize / 4) - 2
+                );
+                bufferContext.lineTo(
+                    (3 * Otomata.cellSize / 4) - 2,
+                    (Otomata.cellSize / 2) - 2
+                );
+                bufferContext.lineTo(
+                    (Otomata.cellSize / 4) - 2,
+                    (Otomata.cellSize / 2) - 2
+                );
+                bufferContext.closePath();
+                bufferContext.fill();
+            }
+
+            {
+                bufferContext = drawingCache[i][3].getContext('2d');
+                setStyle(bufferContext, i);
+                bufferContext.moveTo(
+                    (Otomata.cellSize / 2) - 2,
+                    (Otomata.cellSize / 4) - 2
+                );
+                bufferContext.lineTo(
+                    (Otomata.cellSize / 4) - 2,
+                    (Otomata.cellSize / 2) - 2
+                );
+                bufferContext.lineTo(
+                    (Otomata.cellSize / 2) - 2,
+                    (3 * Otomata.cellSize / 4) - 2
+                );
+                bufferContext.closePath();
+                bufferContext.fill();
+            }
+
+            {
+                bufferContext = drawingCache[i][4].getContext('2d');
+                setStyle(bufferContext, i);
+                bufferContext.beginPath();
+                bufferContext.arc(
+                    (Otomata.cellSize / 2) - 2,
+                    (Otomata.cellSize / 2) - 2,
+                    Otomata.cellSize / 3,
+                    0,
+                    Math.PI * 2);
+                bufferContext.closePath();
+                bufferContext.fill();
+            }
+        }
+    }
     /**
      * Paint the stone
      * @param x the stone column index
      * @param y the stone row index.
-     * @param status 0 up, 1 right, 2 down, 3 left, 4 circle, -1 nada
+     * @param status 0 up, 1 right, 2 down, 3 left, 4 circle, 5 nada
      * @param hit true if hit the wall
      */
     function paintStone(x, y, status, hit) {
@@ -64,6 +185,7 @@ $(document).ready(function () {
             ctx.strokeStyle = ctx.fillStyle = 'white';
         }
 
+
         ctx.clearRect(
             (x * Otomata.cellSize) + 2,
             (y * Otomata.cellSize) + 2,
@@ -71,81 +193,12 @@ $(document).ready(function () {
             Otomata.cellSize - 4
         );
 
-        if (status == 0) {
-            ctx.beginPath();
-            ctx.moveTo(
-                (x * Otomata.cellSize) + (Otomata.cellSize / 2),
-                (y * Otomata.cellSize) + (Otomata.cellSize / 4)
-            );
-            ctx.lineTo(
-                (x * Otomata.cellSize) + (3 * Otomata.cellSize / 4),
-                (y * Otomata.cellSize) + (Otomata.cellSize / 2)
-            );
-            ctx.lineTo(
-                (x * Otomata.cellSize) + (Otomata.cellSize / 4),
-                (y * Otomata.cellSize) + (Otomata.cellSize / 2)
-            );
-            ctx.closePath();
-            ctx.fill();
-        } else if (status == 1) {
-            ctx.beginPath();
-            ctx.moveTo(
-                (x * Otomata.cellSize) + (Otomata.cellSize / 2),
-                (y * Otomata.cellSize) + (Otomata.cellSize / 4)
-            );
-            ctx.lineTo(
-                (x * Otomata.cellSize) + (3 * Otomata.cellSize / 4),
-                (y * Otomata.cellSize) + (Otomata.cellSize / 2)
-            );
-            ctx.lineTo(
-                (x * Otomata.cellSize) + (Otomata.cellSize / 2),
-                (y * Otomata.cellSize) + (3 * Otomata.cellSize / 4)
-            );
-            ctx.closePath();
-            ctx.fill();
-        } else if (status == 2) {
-            ctx.beginPath();
-            ctx.moveTo(
-                (x * Otomata.cellSize) + (Otomata.cellSize / 2),
-                (y * Otomata.cellSize) + (3 * Otomata.cellSize / 4)
-            );
-            ctx.lineTo(
-                (x * Otomata.cellSize) + (3 * Otomata.cellSize / 4),
-                (y * Otomata.cellSize) + (Otomata.cellSize / 2)
-            );
-            ctx.lineTo(
-                (x * Otomata.cellSize) + (Otomata.cellSize / 4),
-                (y * Otomata.cellSize) + (Otomata.cellSize / 2)
-            );
-            ctx.closePath();
-            ctx.fill();
-        } else if (status == 3) {
-            ctx.beginPath();
-            ctx.moveTo(
-                (x * Otomata.cellSize) + (Otomata.cellSize / 2),
-                (y * Otomata.cellSize) + (Otomata.cellSize / 4)
-            );
-            ctx.lineTo(
-                (x * Otomata.cellSize) + (Otomata.cellSize / 4),
-                (y * Otomata.cellSize) + (Otomata.cellSize / 2)
-            );
-            ctx.lineTo(
-                (x * Otomata.cellSize) + (Otomata.cellSize / 2),
-                (y * Otomata.cellSize) + (3 * Otomata.cellSize / 4)
-            );
-            ctx.closePath();
-            ctx.fill();
-        } else if (status == 4) {
-            ctx.beginPath();
-            ctx.arc(
-                (x * Otomata.cellSize) + (Otomata.cellSize / 2),
-                (y * Otomata.cellSize) + (Otomata.cellSize / 2),
-                Otomata.cellSize / 3,
-                0,
-                Math.PI * 2);
-            ctx.closePath();
-            ctx.fill();
-        }
+        ctx.drawImage(
+            drawingCache[hit ? 1 : 0][status],
+            (x * Otomata.cellSize) + 2,
+            (y * Otomata.cellSize) + 2
+        );
+
     }
 
     var requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame ||

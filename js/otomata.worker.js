@@ -30,7 +30,7 @@ self.addEventListener('message', function (e) {
         for (var i = 0; i < Otomata.numberOfCells; i++) {
             for (var j = 0; j < Otomata.numberOfCells; j++) {
                 if (lastGrid[i][j] && (lastGrid[i][j].length > 0)) {
-                    repaint([i, j , -1]);
+                    repaint([i, j , 5, false]);
                     lastGrid[i][j] = null;
                 }
             }
@@ -129,7 +129,7 @@ function tick() {
                 // no element
                 if (onLastGrid && (onLastGrid.length != 0)) {
                     // was not empty
-                    stonesToPaint.push([i, j, -1, false]);
+                    stonesToPaint.push([i, j, 5, false]);
                 }
             } else if (onNewGrid.length == 1) {
                 // 1 element
@@ -204,11 +204,11 @@ function clickStone(x, y) {
             // we kill the stone
             // then remove it from the list
             lastGrid[x][y] = null;
-            stone[2] = -1;
+            stone[2] = 5;
 
             var newStones = [];
             for (var i = 0; i < stones.length; i++) {
-                if (stones[i][2] != -1) {
+                if (stones[i][2] != 5) {
                     newStones.push(stone);
                 }
             }
