@@ -1,12 +1,12 @@
-var worker;
-
 $(document).ready(function () {
     var canvas = document.getElementById("playGround");
     if (!canvas.getContext) {
         return;
     }
 
+    var worker;
     var ctx = canvas.getContext('2d');
+    var stonesRepaints = [];
 
     ctx.strokeStyle = ctx.fillStyle = 'white';
     for (var i = 0; i < Otomata.numberOfCells; i++) {
@@ -58,7 +58,7 @@ $(document).ready(function () {
      * @param hit true if hit the wall
      */
     function paintStone(x, y, status, hit) {
-        if(hit) {
+        if (hit) {
             ctx.strokeStyle = ctx.fillStyle = 'red';
         } else {
             ctx.strokeStyle = ctx.fillStyle = 'white';
@@ -148,11 +148,26 @@ $(document).ready(function () {
         }
     }
 
+    var requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame ||
+        window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
+
+    function repaintStones() {
+        for (var i = 0; i < stonesRepaints.length; i++) {
+            paintStone(stonesRepaints[i][0], stonesRepaints[i][1], stonesRepaints[i][2], stonesRepaints[i][3])
+        }
+        stonesRepaints = [];
+    }
+
     worker = new Worker("js/otomata.worker.js");
     worker.onmessage = function (event) {
         var action = event.data[0];
         if (action == 'paint') {
-            paintStone(event.data[1][0], event.data[1][1], event.data[1][2], event.data[1][3]);
+            stonesRepaints = stonesRepaints.concat(event.data[1]);
+            if (requestAnimationFrame) {
+                requestAnimationFrame(repaintStones);
+            } else {
+                repaintStones();
+            }
         } else if (action == 'sound') {
             playSound(event.data[1]);
         } else if (action == 'log') {

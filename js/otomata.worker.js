@@ -39,8 +39,8 @@ self.addEventListener('message', function (e) {
 
 }, false);
 
-function repaint(stone) {
-    self.postMessage(['paint', stone]);
+function repaint(stones) {
+    self.postMessage(['paint', stones]);
 }
 
 function playSound(index, position) {
@@ -61,6 +61,7 @@ function addItemToGrid(grid, stone) {
  */
 function tick() {
     ticking = true;
+
     // calculate the new grid
     var newGrid = new Array(Otomata.numberOfCells);
     for (var i = 0; i < Otomata.numberOfCells; i++) {
@@ -118,6 +119,8 @@ function tick() {
 
     // now switch the direction of collisions and
     // repaint what is needed
+    var stonesToPaint = [];
+
     for (i = 0; i < Otomata.numberOfCells; i++) {
         for (var j = 0; j < Otomata.numberOfCells; j++) {
             var onLastGrid = lastGrid[i][j];
@@ -126,16 +129,16 @@ function tick() {
                 // no element
                 if (onLastGrid && (onLastGrid.length != 0)) {
                     // was not empty
-                    repaint([i, j, -1, false]);
+                    stonesToPaint.push([i, j, -1, false]);
                 }
             } else if (onNewGrid.length == 1) {
                 // 1 element
                 if ((!onLastGrid) || (onLastGrid.length != 1)) {
-                    repaint(onNewGrid[0]);
+                    stonesToPaint.push(onNewGrid[0]);
                 } else if ((onNewGrid[0] == onLastGrid[0]) || (onNewGrid[0][2] != onLastGrid[0][2])) {
                     // element has not the same direction as before
                     // or is the same element (so it must have changed its directions)
-                    repaint(onNewGrid[0]);
+                    stonesToPaint.push(onNewGrid[0]);
                 }
             } else {
                 // more than 1 element
@@ -147,9 +150,13 @@ function tick() {
                     hit = hit || onNewGrid[k][3];
                 }
 
-                repaint([i, j, 4, hit]);
+                stonesToPaint.push([i, j, 4, hit]);
             }
         }
+    }
+
+    if(stonesToPaint.length > 0) {
+        repaint(stonesToPaint);
     }
 
     lastGrid = newGrid;
@@ -171,7 +178,7 @@ function tick() {
  * @param y the stone row index.
  */
 function clickStone(x, y) {
-
+    var stonesToPaint = [];
     // if the tick is running, store the action to play it later
     if (ticking) {
         if (waitingClicks) {
@@ -189,7 +196,7 @@ function clickStone(x, y) {
         var newStone = [x, y, 0, false];
         lastGrid[x][y] = [newStone];
         stones.push(newStone);
-        repaint(newStone);
+        stonesToPaint.push(newStone);
     } else if (stonesOnPosition.length == 1) {
         var stone = stonesOnPosition[0];
         stone[2] = (stone[2] + 1) % 5;
@@ -206,12 +213,16 @@ function clickStone(x, y) {
                 }
             }
             stones = newStones;
-            repaint(stone);
+            stonesToPaint.push(stone);
         } else {
-            repaint(stone);
+            stonesToPaint.push(stone);
         }
     } else {
         // more than one stone => do nothing
+    }
+
+    if(stonesToPaint.length > 0) {
+        repaint(stonesToPaint);
     }
 }
 
