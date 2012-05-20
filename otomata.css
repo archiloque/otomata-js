@@ -17,6 +17,14 @@ body {
     top: 0;
     left: 0;
 }
+#playGroundOver {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 405px;
+    height: 405px;
+    z-index: 3;
+}
 
 #controls {
     position: absolute;
@@ -54,4 +62,59 @@ select, option {
     border-radius: 5px;
     padding: 1px;
     margin: 2px;
+}
+
+.stone {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    -webkit-transition: all 100ms ease-in-out;
+    -moz-transition: all 100ms ease-in-out;
+    -o-transition: all 100ms ease-in-out;
+    -ms-transition: all 100ms ease-in-out;
+    transition: all 100ms ease-in-out;
+    display: none;
+    z-index: 2;
+}
+
+.moveTop {
+    -moz-transform: translate(0,-45px);
+    -webkit-transform: translate(0,-45px);
+    -o-transform: translate(0,-45px);
+    transform: translate(0,-45px);
+}
+
+.moveBottom {
+    -moz-transform: translate(0,45px);
+    -webkit-transform: translate(0,45px);
+    -o-transform: translate(0,45px);
+    transform: translate(0,45px);
+}
+
+.moveLeft {
+    -moz-transform: translate(-45px,0);
+    -webkit-transform: translate(-45px,0);
+    -o-transform: translate(-45px,0);
+    transform: translate(-45px,0);
+}
+
+.moveRight {
+    -moz-transform: translate(45px,0);
+    -webkit-transform: translate(45px,0);
+    -o-transform: translate(45px,0);
+    transform: translate(45px,0);
+}
+
+.turnHalf {
+    -moz-transform: rotate(180deg);
+    -webkit-transform: rotate(180deg);
+    -o-transform: rotate(180deg);
+    transform: rotate(180deg);
+}
+
+.turnQuarter {
+    -moz-transform: rotate(90deg);
+    -webkit-transform: rotate(90deg);
+    -o-transform: rotate(90deg);
+    transform: rotate(90deg);
 }

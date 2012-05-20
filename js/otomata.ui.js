@@ -7,6 +7,7 @@ $(document).ready(function () {
     var worker;
     var ctx = canvas.getContext('2d');
     var stonesRepaints = [];
+    var stones = [];
 
     ctx.strokeStyle = ctx.fillStyle = '#7E9ACF';
     for (var i = 0; i < Otomata.numberOfCells; i++) {
@@ -32,17 +33,17 @@ $(document).ready(function () {
         return ((x >= 2) && (x <= (Otomata.cellSize - 2)) && (y >= 2) && (y <= (Otomata.cellSize - 2)));
     }
 
-    $("#playGround").mouseleave(function () {
-        $("#playGround").css({cursor:"default"});
+    $("#playGroundOver").mouseleave(function () {
+        $("#playGroundOver").css({cursor:"default"});
     });
-    $("#playGround").mousemove(function (event) {
+    $("#playGroundOver").mousemove(function (event) {
         if (onStone(event)) {
-            $("#playGround").css({cursor:"pointer"});
+            $("#playGroundOver").css({cursor:"pointer"});
         } else {
-            $("#playGround").css({cursor:"default"});
+            $("#playGroundOver").css({cursor:"default"});
         }
     });
-    $("#playGround").click(function (event) {
+    $("#playGroundOver").click(function (event) {
         if (onStone(event)) {
             var stoneX = (event.pageX - (event.pageX % Otomata.cellSize)) / Otomata.cellSize;
             var stoneY = (event.pageY - (event.pageY % Otomata.cellSize)) / Otomata.cellSize;
@@ -50,187 +51,82 @@ $(document).ready(function () {
         }
     });
 
-    function setBackgroundStyle(context, hit) {
-        if (hit == 1) {
-            context.strokeStyle = context.fillStyle = 'white';
-        } else if(hit == 2) {
-            context.strokeStyle = context.fillStyle = '#7E9ACF';
-        } else {
-            context.strokeStyle = context.fillStyle = 'white';
-        }
-
-    }
-
-    function setStyle(context, hit) {
-        if (hit == 1) {
-            context.strokeStyle = context.fillStyle = 'red';
-        } else if(hit == 2) {
-            context.strokeStyle = context.fillStyle = '#4575d2';
-        } else {
-            context.strokeStyle = context.fillStyle = '#4575d2';
-        }
-
-    }
-
-    function finish(context, hit) {
-//        if (hit == 2) {
-//            context.stroke();
-//        } else {
-            context.fill();
-//        }
-
-    }
-
-    // prepare the drawing cache
-    // drawingCache is an array of array
-    // first array contain the normal version
-    // second array contain the version when the stone hit a will
-    // third array contain the faded versions
-    // in each version the drawing are:
-    // 0 up, 1 right, 2 down, 3 left, 4 circle, 5 nothing
-    var drawingCache = new Array(3);
-    {
-        for (i = 0; i < 3; i++) {
-
-            drawingCache[i] = new Array(6);
-            for (j = 0; j < 6; j++) {
-                var buffer = drawingCache[i][j] = document.createElement('canvas');
-                buffer.height = buffer.width = Otomata.cellSize - 4;
-
-                bufferContext = drawingCache[i][j].getContext('2d');
-                setBackgroundStyle(bufferContext, i);
-                bufferContext.fillRect(
-                    0,
-                    0,
-                    Otomata.cellSize - 4,
-                    Otomata.cellSize - 4
-                );
-            }
-
-            var bufferContext;
-            {
-                bufferContext = drawingCache[i][0].getContext('2d');
-                setStyle(bufferContext, i);
-                bufferContext.beginPath();
-                bufferContext.moveTo(
-                    (Otomata.cellSize / 2) - 2,
-                    (Otomata.cellSize / 4) - 2
-                );
-                bufferContext.lineTo(
-                    (3 * Otomata.cellSize / 4) - 2,
-                    (Otomata.cellSize / 2) - 2
-                );
-                bufferContext.lineTo(
-                    (Otomata.cellSize / 4) - 2,
-                    (Otomata.cellSize / 2) - 2
-                );
-                bufferContext.closePath();
-                finish(bufferContext, i);
-            }
-
-            {
-                bufferContext = drawingCache[i][1].getContext('2d');
-                setStyle(bufferContext, i);
-                bufferContext.beginPath();
-                bufferContext.moveTo(
-                    (Otomata.cellSize / 2) - 2,
-                    (Otomata.cellSize / 4) - 2
-                );
-                bufferContext.lineTo(
-                    (3 * Otomata.cellSize / 4) - 2,
-                    (Otomata.cellSize / 2) - 2
-                );
-                bufferContext.lineTo(
-                    (Otomata.cellSize / 2) - 2,
-                    (3 * Otomata.cellSize / 4) - 2
-                );
-                bufferContext.closePath();
-                finish(bufferContext, i);
-            }
-
-            {
-                bufferContext = drawingCache[i][2].getContext('2d');
-                setStyle(bufferContext, i);
-                bufferContext.beginPath();
-                bufferContext.moveTo(
-                    (Otomata.cellSize / 2) - 2,
-                    (3 * Otomata.cellSize / 4) - 2
-                );
-                bufferContext.lineTo(
-                    (3 * Otomata.cellSize / 4) - 2,
-                    (Otomata.cellSize / 2) - 2
-                );
-                bufferContext.lineTo(
-                    (Otomata.cellSize / 4) - 2,
-                    (Otomata.cellSize / 2) - 2
-                );
-                bufferContext.closePath();
-                finish(bufferContext, i);
-            }
-
-            {
-                bufferContext = drawingCache[i][3].getContext('2d');
-                setStyle(bufferContext, i);
-                bufferContext.moveTo(
-                    (Otomata.cellSize / 2) - 2,
-                    (Otomata.cellSize / 4) - 2
-                );
-                bufferContext.lineTo(
-                    (Otomata.cellSize / 4) - 2,
-                    (Otomata.cellSize / 2) - 2
-                );
-                bufferContext.lineTo(
-                    (Otomata.cellSize / 2) - 2,
-                    (3 * Otomata.cellSize / 4) - 2
-                );
-                bufferContext.closePath();
-                finish(bufferContext, i);
-            }
-
-            {
-                bufferContext = drawingCache[i][4].getContext('2d');
-                setStyle(bufferContext, i);
-                bufferContext.beginPath();
-                bufferContext.arc(
-                    (Otomata.cellSize / 2) - 2,
-                    (Otomata.cellSize / 2) - 2,
-                    Otomata.cellSize / 3,
-                    0,
-                    Math.PI * 2);
-                bufferContext.closePath();
-                finish(bufferContext, i);
-            }
-        }
-    }
-    /**
-     * Paint the stone
-     * @param x the stone column index
-     * @param y the stone row index.
-     * @param position 0 up, 1 right, 2 down, 3 left, 4 circle, 5 nada
-     * @param type 0 normal, 1 hit the wall, 2 faded
-     */
-    function paintStone(x, y, position, type) {
-        ctx.clearRect(
-            (x * Otomata.cellSize) + 2,
-            (y * Otomata.cellSize) + 2,
+    function createTile() {
+        tile = document.createElement('canvas');
+        tile.height = tile.width = Otomata.cellSize - 4;
+        var bufferContext = tile.getContext('2d');
+        bufferContext.strokeStyle = bufferContext.fillStyle = 'white';
+        bufferContext.fillRect(
+            0,
+            0,
             Otomata.cellSize - 4,
             Otomata.cellSize - 4
         );
-        if (position < 5) {
-            ctx.drawImage(
-                drawingCache[type][position],
-                (x * Otomata.cellSize) + 2,
-                (y * Otomata.cellSize) + 2
-            );
-        }
+        bufferContext.strokeStyle = bufferContext.fillStyle = '#4575d2';
+        bufferContext.beginPath();
+        bufferContext.moveTo(
+            (Otomata.cellSize / 2) - 2,
+            (Otomata.cellSize / 4) - 2
+        );
+        bufferContext.lineTo(
+            (3 * Otomata.cellSize / 4) - 2,
+            (Otomata.cellSize / 2) - 2
+        );
+        bufferContext.lineTo(
+            (Otomata.cellSize / 4) - 2,
+            (Otomata.cellSize / 2) - 2
+        );
+        bufferContext.closePath();
+        bufferContext.fill();
+        return tile;
+    }
+
+    var cachedTile = createTile();
+
+    function addStone(x, y, i) {
+        var canvas = $('<canvas class="stone"/>').appendTo('body');
+        canvas.attr('height', (Otomata.cellSize - 4) + "px");
+        canvas.attr('width', (Otomata.cellSize - 4) + "px");
+        canvas[0].getContext('2d').drawImage(
+            cachedTile,
+            0,
+            0
+        );
+        stones[i] = canvas;
+        canvas.transition({x: (x * Otomata.cellSize), y: (y * Otomata.cellSize)}, 0);
+        canvas.fadeIn(50, 'linear');
+    }
+
+    function removeStone(i) {
+        stones[i].fadeOut(50, 'linear', function(){
+            stones[i].detach();
+            stones[i] = 0;
+        });
     }
 
     var requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame ||
         window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
 
-    function repaintStones() {
+    // update a list of stones
+    // each update is represented by an array that indicates the changes to apply to it
+    // 0: tile index
+    // 1: x position change: specify slot
+    // 2: y position change: specify slot
+    // 3: rotation (specify degree)
+    function updateStones() {
         for (var i = 0; i < stonesRepaints.length; i++) {
-            paintStone(stonesRepaints[i][0], stonesRepaints[i][1], stonesRepaints[i][2], stonesRepaints[i][3])
+            var stone = stonesRepaints[i];
+            var params = {};
+            if(stone[1] != null) {
+                params.x = stone[1] * Otomata.cellSize;
+            }
+            if(stone[2] != null) {
+                params.y = stone[2] * Otomata.cellSize;
+            }
+            if(stone[3] != null) {
+                params.rotate = (stone[3] * 90) + 'deg';
+            }
+            $(stones[stone[0]]).transition(params, 25, 'ease');
         }
         stonesRepaints = [];
     }
@@ -238,14 +134,18 @@ $(document).ready(function () {
     worker = new Worker("js/otomata.worker.js");
     worker.onmessage = function (event) {
         var action = event.data[0];
-        if (action == 'paint') {
+        if (action == 'updateStones') {
             stonesRepaints = stonesRepaints.concat(event.data[1]);
             if (requestAnimationFrame) {
-                requestAnimationFrame(repaintStones);
+                requestAnimationFrame(updateStones);
             } else {
-                repaintStones();
+                updateStones();
             }
-        } else if (action == 'sound') {
+        } else if (action == 'addStone') {
+            addStone(event.data[1][0], event.data[1][1], event.data[1][2]);
+        } else if (action == 'removeStone') {
+            removeStone(event.data[1]);
+        } else if (action == 'playSounds') {
             playSound(event.data[1]);
         } else if (action == 'log') {
             console.log(event.data[1]);

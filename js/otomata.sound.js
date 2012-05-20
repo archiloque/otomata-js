@@ -74,8 +74,11 @@ function setOctave(octave) {
     updateSounds();
 }
 
-function playSound(index) {
-    if (currentSounds[index]) {
-        currentSounds[index].play();
+function playSound(sounds) {
+    for (i = 0; i < sounds.length; i++) {
+        var sound = currentSounds[sounds[i]];
+        if (sound) {
+            sound.play();
+        }
     }
 }

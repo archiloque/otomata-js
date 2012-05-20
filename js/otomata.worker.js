@@ -42,20 +42,11 @@ self.addEventListener('message', function (e) {
 }, false);
 
 function repaint(stones) {
-    self.postMessage(['paint', stones]);
+    self.postMessage(['updateStones', stones]);
 }
 
-function playSound(index, position) {
-    self.postMessage(['sound', index, position]);
-}
-
-function addItemToGrid(grid, stone) {
-    var items = grid[stone[0]][stone[1]];
-    if (items) {
-        items.push(stone);
-    } else {
-        grid[stone[0]][stone[1]] = [stone];
-    }
+function playSounds(sounds) {
+    self.postMessage(['playSounds', sounds]);
 }
 
 /**
@@ -63,108 +54,105 @@ function addItemToGrid(grid, stone) {
  */
 function tick() {
     ticking = true;
+    var stonesToPaint = [];
+    var soundsToPlay = [];
 
     // calculate the new grid
     var newGrid = new Array(Otomata.numberOfCells);
     for (var i = 0; i < Otomata.numberOfCells; i++) {
         newGrid[i] = new Array(Otomata.numberOfCells);
     }
+
     for (i = 0; i < stones.length; i++) {
         var stone = stones[i];
-        if (stone[2] == 0) {
-            // go up
-            if (stone[1] == 0) {
-                // hit the ceiling
-                playSound(stone[0], 0);
-                stone[2] = 2;
-                stone[3] = 1;
+        if (stone) {
+            if (stone[2] == 0) {
+                // go up
+                if (stone[1] == 0) {
+                    // hit the ceiling
+                    soundsToPlay.push(stone[0]);
+                    stone[2] = 2;
+                    stone[3] = 1;
+                    stonesToPaint.push([i, null, null, stone[2]]);
+                } else {
+                    stone[1]--;
+                    stone[3] = 0;
+                    stonesToPaint.push([i, null, stone[1], null]);
+                }
+                } else if (stone[2] == 1) {
+                // go right
+                if (stone[0] == (Otomata.numberOfCells - 1)) {
+                    // hit the right wall
+                    soundsToPlay.push(stone[1]);
+                    stone[2] = 3;
+                    stone[3] = 1;
+                    stonesToPaint.push([i, null, null, stone[2]]);
+                } else {
+                    stone[0]++;
+                    stone[3] = 0;
+                    stonesToPaint.push([i, stone[0], null, null]);
+                }
+            } else if (stone[2] == 2) {
+                // go down
+                if (stone[1] == (Otomata.numberOfCells - 1)) {
+                    // hit the floor
+                    soundsToPlay.push(stone[0]);
+                    stone[2] = 0;
+                    stone[3] = 1;
+                    stonesToPaint.push([i, null, null, stone[2]]);
+                } else {
+                    stone[1]++;
+                    stone[3] = 0;
+                    stonesToPaint.push([i, null, stone[1], null]);
+                }
             } else {
-                stone[1]--;
-                stone[3] = 0;
+                // go left
+                if (stone[0] == 0) {
+                    // hit the left wall
+                    soundsToPlay.push(stone[1]);
+                    stone[2] = 1;
+                    stone[3] = 1;
+                    stonesToPaint.push([i, null, null, stone[2]]);
+                } else {
+                    stone[0]--;
+                    stone[3] = 0;
+                    stonesToPaint.push([i, stone[0], null, null]);
+                }
             }
-        } else if (stone[2] == 1) {
-            // go right
-            if (stone[0] == (Otomata.numberOfCells - 1)) {
-                // hit the right wall
-                playSound(stone[1], 1);
-                stone[2] = 3;
-                stone[3] = 1;
+
+            var items = newGrid[stone[0]][stone[1]];
+            if (items) {
+                items.push(stone);
             } else {
-                stone[0]++;
-                stone[3] = 0;
+                newGrid[stone[0]][stone[1]] = [stone];
             }
-        } else if (stone[2] == 2) {
-            // go down
-            if (stone[1] == (Otomata.numberOfCells - 1)) {
-                // hit the floor
-                playSound(stone[0], 2);
-                stone[2] = 0;
-                stone[3] = 1;
-            } else {
-                stone[1]++;
-                stone[3] = 0;
-            }
-        } else {
-            // go left
-            if (stone[0] == 0) {
-                // hit the left wall
-                playSound(stone[1], 3);
-                stone[2] = 1;
-                stone[3] = 1;
-            } else {
-                stone[0]--;
-                stone[3] = 0;
-            }
+
         }
-        addItemToGrid(newGrid, stone);
     }
 
     // now switch the direction of collisions and
     // repaint what is needed
-    var stonesToPaint = [];
 
     for (i = 0; i < Otomata.numberOfCells; i++) {
         for (var j = 0; j < Otomata.numberOfCells; j++) {
-            var onLastGrid = lastGrid[i][j];
             var onNewGrid = newGrid[i][j];
-            if (!onNewGrid) {
-                // no element
-                if (onLastGrid && (onLastGrid.length != 0)) {
-                    // was not empty
-                    if(onLastGrid.length == 1) {
-                        stonesToPaint.push([i, j, onLastGrid[0][2], 2]);
-                    } else {
-                        stonesToPaint.push([i, j, 4, 2]);
-                    }
-                } else {
-                    stonesToPaint.push([i, j, 5, 0]);
-                }
-            } else if (onNewGrid.length == 1) {
-                // 1 element
-                if ((!onLastGrid) || (onLastGrid.length != 1)) {
-                    stonesToPaint.push(onNewGrid[0]);
-                } else if ((onNewGrid[0] == onLastGrid[0]) || (onNewGrid[0][2] != onLastGrid[0][2])) {
-                    // element has not the same direction as before
-                    // or is the same element (so it must have changed its directions)
-                    stonesToPaint.push(onNewGrid[0]);
-                }
-            } else {
-                // more than 1 element
-
+            if (onNewGrid  && (onNewGrid.length >= 2)) {
                 // update their direction
                 var hit = false;
                 for (var k = 0; k < onNewGrid.length; k++) {
                     onNewGrid[k][2] = (onNewGrid[k][2] + 1) % 4;
                     hit = hit || onNewGrid[k][3];
+                    stonesToPaint.push([onNewGrid[k][4], null, null, onNewGrid[k][2]]);
                 }
-
-                stonesToPaint.push([i, j, 4, hit ? 1 : 0]);
             }
         }
     }
 
-    if(stonesToPaint.length > 0) {
+    if (stonesToPaint.length > 0) {
         repaint(stonesToPaint);
+    }
+    if(soundsToPlay.length > 0) {
+        playSounds(soundsToPlay);
     }
 
     lastGrid = newGrid;
@@ -186,7 +174,6 @@ function tick() {
  * @param y the stone row index.
  */
 function clickStone(x, y) {
-    var stonesToPaint = [];
     // if the tick is running, store the action to play it later
     if (ticking) {
         if (waitingClicks) {
@@ -202,10 +189,10 @@ function clickStone(x, y) {
     var stonesOnPosition = lastGrid[x][y];
     if ((!stonesOnPosition) || (stonesOnPosition.length == 0)) {
         /// there was no stone => create it
-        var newStone = [x, y, 0, 0];
+        var newStone = [x, y, 0, 0, stones.length];
         lastGrid[x][y] = [newStone];
+        self.postMessage(['addStone', [x, y, stones.length]]);
         stones.push(newStone);
-        stonesToPaint.push(newStone);
     } else if (stonesOnPosition.length == 1) {
         /// there is one stone => turn it around
         var stone = stonesOnPosition[0];
@@ -214,25 +201,15 @@ function clickStone(x, y) {
             // we kill the stone
             // then remove it from the list
             lastGrid[x][y] = null;
-            stone[2] = 5;
-
-            var newStones = [];
-            for (var i = 0; i < stones.length; i++) {
-                if (stones[i][2] != 5) {
-                    newStones.push(stone);
-                }
-            }
-            stones = newStones;
-            stonesToPaint.push(stone);
+            stones[stone[4]] = null;
+            self.postMessage(['removeStone', stone[4]]);
         } else {
-            stonesToPaint.push(stone);
+            self.postMessage(['updateStones', [
+                [stone[4], null, null, stone[2]]
+            ]]);
         }
     } else {
         // more than one stone => do nothing
-    }
-
-    if(stonesToPaint.length > 0) {
-        repaint(stonesToPaint);
     }
 }
 
