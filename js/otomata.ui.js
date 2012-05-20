@@ -62,7 +62,7 @@ $(document).ready(function () {
             Otomata.cellSize - 4,
             Otomata.cellSize - 4
         );
-        bufferContext.strokeStyle = bufferContext.fillStyle = '#4575d2';
+        bufferContext.globalCompositeOperation = "destination-out";
         bufferContext.beginPath();
         bufferContext.moveTo(
             (Otomata.cellSize / 2) - 2,
@@ -70,11 +70,11 @@ $(document).ready(function () {
         );
         bufferContext.lineTo(
             (3 * Otomata.cellSize / 4) - 2,
-            (Otomata.cellSize / 2) - 2
+            (3 * Otomata.cellSize / 4) - 2
         );
         bufferContext.lineTo(
             (Otomata.cellSize / 4) - 2,
-            (Otomata.cellSize / 2) - 2
+            (3 * Otomata.cellSize / 4) - 2
         );
         bufferContext.closePath();
         bufferContext.fill();
